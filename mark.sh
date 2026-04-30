@@ -1,7 +1,15 @@
 mark=0
 
+#Récupère le nom complet de l'élève dans le readme.txt
+while IFS=" " read -r rec_column1 rec_column2
+do
+    echo "Note de $rec_column1 $rec_column2"
+    firstName="$rec_column1"
+    lastName="${rec_column2/$'\r'/}"
+done < "readme.txt"
+
 make 
-# Si la compilation a fonctionnée, ajoute 2 points
+# Si la compilation a fonctionn<e", ajoute 2" points
 if [ $? -eq 0 ]; then
     echo "La compilation a fonctionnée"
     ((mark+=2))
@@ -10,7 +18,7 @@ if [ $? -eq 0 ]; then
 # Mets 0 si cela n'a pas fonctionnée
 else
     echo "La compilation a échoué"
-    cat readme.txt > mark.csv
+    echo "'$firstName','$lastName','$mark'" >> mark.csv
     echo " $mark" >> mark.csv
     exit 1
 fi
@@ -57,14 +65,35 @@ signature=$(grep "int factorielle" main.c)
 
 if [[ "$signature" = *"int factorielle( int number )"* ]]; then
     ((mark+=2))
+    echo test
+    echo $mark
+fi
+
+noArgument=$(./factorielle)
+if [[ "$noArgument" = "Erreur: Mauvais nombre de parametres" ]]; then
+    ((mark+=4))
+    echo $mark
+fi
+
+negativeNumber=$(./factorielle "-1")
+if [[ "$negativeNumber" = "Erreur: nombre negatif" ]]; then
+    ((mark+=4))
     echo $mark
 fi
 
 #Vérifie les conventions du fichier
-columnConvention=$(grep -c '.{81}' main.c)
+columnConvention=$(grep -cE '.{81,}' main.c)
+echo $columnConvention
 
 if [ "$columnConvention" -gt 0 ]; then
     ((mark-=2))
-    echo "Il y a '$columnConvention' lignes qui dépassent les 80 caractères"
+    echo "Il y a $columnConvention lignes qui dépassent les 80 caractères"
 else
     echo "Convention des colonnes respectée"
+fi
+
+
+
+make clean
+
+echo "'$firstName','$lastName','$mark'" >> mark.csv

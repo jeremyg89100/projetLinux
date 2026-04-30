@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int factorielle(int number) {
+int factorielle( int number ) {
   int result = 1;
 
   for (int i = 1; i <= number; i++) {
