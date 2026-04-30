@@ -35,7 +35,7 @@ do
     fi
 done  
 
-# Si tous les résultats sont les même alors on ajoute les 5 points
+# Si tous les résultats sont les mêmes alors on ajoute les 5 points
 if [ "$sameResult" = true ]; then
     ((mark+=5))
     echo "$mark"
@@ -59,3 +59,12 @@ if [[ "$signature" = *"int factorielle( int number )"* ]]; then
     ((mark+=2))
     echo $mark
 fi
+
+#Vérifie les conventions du fichier
+columnConvention=$(grep -c '.{81}' main.c)
+
+if [ "$columnConvention" -gt 0 ]; then
+    ((mark-=2))
+    echo "Il y a '$columnConvention' lignes qui dépassent les 80 caractères"
+else
+    echo "Convention des colonnes respectée"

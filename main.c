@@ -1,23 +1,19 @@
+#include "header.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "header.h"
 
-int factorielle( int number )
-{
+int factorielle(int number) {
   int result = 1;
 
-  for(int i = 1; i <= number; i++) 
-  {
+  for (int i = 1; i <= number; i++) {
     result *= i;
   }
 
   return result;
 }
 
-int main(int argc, char *argv[]) 
-{
-  if (argc != 2) 
-  {
+int main(int argc, char *argv[]) {
+  if (argc != 2) {
     printf("Erreur: Mauvais nombre de parametres\n");
     return 1;
   }
