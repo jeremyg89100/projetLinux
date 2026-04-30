@@ -1,3 +1,5 @@
+#!/bin/bash
+
 mark=0
 
 #Récupère le nom complet de l'élève dans le readme.txt
@@ -47,7 +49,7 @@ done
 if [ "$sameResult" = true ]; then
     ((mark+=5))
     echo "$mark"
-fi  
+fi
 
 # Calcul si la factorielle 0 = 1
 facto0=$(./factorielle "0")
@@ -65,16 +67,17 @@ signature=$(grep "int factorielle" main.c)
 
 if [[ "$signature" = *"int factorielle( int number )"* ]]; then
     ((mark+=2))
-    echo test
     echo $mark
 fi
 
+#Vérifie si le programme gère un nombre inexact de paramètre
 noArgument=$(./factorielle)
 if [[ "$noArgument" = "Erreur: Mauvais nombre de parametres" ]]; then
     ((mark+=4))
     echo $mark
 fi
 
+#Vérifie si le programme gère un nombre négatif
 negativeNumber=$(./factorielle "-1")
 if [[ "$negativeNumber" = "Erreur: nombre negatif" ]]; then
     ((mark+=4))
@@ -92,8 +95,65 @@ else
     echo "Convention des colonnes respectée"
 fi
 
+malus=false
 
+#Vérifie l'indentation du code de tous les fichiers c et h
+for file in *.c *.h
+do
+    indentNiveau=0
+    indentation=2
+    ligneNum=0
+    while IFS= read -r line
+    do
+        ((ligneNum++))
 
+        line="${line//$'\r'/}"
+
+        if [[ -z "${line// }" ]]; then
+            continue
+        fi
+
+        space=$(expr "$line" : ' *')
+
+        fermeture=0
+        if [[ "$line" =~ ^[[:space:]]*"}" ]]; then
+            fermeture=1
+        fi
+
+        verification=$(( (indentNiveau - fermeture) * indentation ))
+
+        if [[ "$space" -ne "$verification" ]]; then
+            echo $space et $verification
+            echo "Ligne $ligneNum : Erreur d'indentation dans le fichier $file"
+            malus=true
+        fi
+
+        opened=$(echo "$line" | grep -o "{" | wc -l)
+        closed=$(echo "$line" | grep -o "}" | wc -l)
+        
+        indentNiveau=$(( indentNiveau + opened - closed ))
+    done < $file
+done
+
+#Vérifie si il y a eu une erreur d'indentation
+if $malus; then
+    ((mark-=2))
+fi
+
+#Vérification de l'existance du fichier header.h
+header="header.h"
+if [[ ! -f "$header" ]]; then
+    ((mark-=2))
+    echo $mark
+fi
+
+#Vérifie si la suppresion de l'éxécutable fonctionne
 make clean
+if [ $? -ne 0 ]; then
+    ((mark-=2))
+    echo $mark
+fi
 
+#Note finale de l'élève
+echo $mark
 echo "'$firstName','$lastName','$mark'" >> mark.csv
