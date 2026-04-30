@@ -1,2 +1,1 @@
 John Doe
-Jane Doe

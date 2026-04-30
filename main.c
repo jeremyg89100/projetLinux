@@ -23,7 +23,8 @@ int main(int argc, char *argv[])
   }
 
   int number = atoi(argv[1]);
-  if (number < 0) {
+  if (number < 0) 
+  {
     printf("Erreur: nombre negatif\n");
     return 1;
   }
