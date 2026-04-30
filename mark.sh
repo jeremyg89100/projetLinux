@@ -1,7 +1,7 @@
 #!/bin/bash
 
-dos2unix mark.sh Makefile
-sleep 1
+#dos2unix mark.sh Makefile
+#le faire avant de lancer le script si il est marqué comme introuvable
 
 mark=0
 
@@ -23,7 +23,6 @@ if [ $? -eq 0 ]; then
 else
     echo "La compilation a échoué"
     echo "'$firstName','$lastName','$mark'" >> mark.csv
-    echo " $mark" >> mark.csv
     exit 1
 fi
 
@@ -63,9 +62,18 @@ else
 fi
 
 # Vérifie si la signature est bonne
-signature=$(grep "int factorielle" main.c)
+point=false
 
-if [[ "$signature" = *"int factorielle( int number )"* ]]; then
+for file in *.c *.h
+    do
+    signature=$(grep "int factorielle" $file)
+
+    if [[ "$signature" = *"int factorielle( int number )"* ]]; then
+        point=true
+    fi
+done
+
+if $point; then
     ((mark+=2))
 fi
 
@@ -82,13 +90,22 @@ if [[ "$negativeNumber" = "Erreur: nombre negatif" ]]; then
 fi
 
 #Vérifie les conventions du fichier
-columnConvention=$(grep -cE '.{81,}' main.c)
+malus=false
 
-if [ "$columnConvention" -gt 0 ]; then
+for file in *.c *.h
+do
+    columnConvention=$(grep -cE '.{81,}' $file)
+
+    if [ "$columnConvention" -gt 0 ]; then
+        malus=true
+        echo "Il y a $columnConvention lignes qui dépassent les 80 caractères"
+    else
+        echo "Convention des colonnes respectée dans $file"
+    fi
+done
+
+if $malus; then
     ((mark-=2))
-    echo "Il y a $columnConvention lignes qui dépassent les 80 caractères"
-else
-    echo "Convention des colonnes respectée"
 fi
 
 malus=false
