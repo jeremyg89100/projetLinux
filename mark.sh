@@ -10,7 +10,7 @@ if [ $? -eq 0 ]; then
 # Mets 0 si cela n'a pas fonctionnée
 else
     echo "La compilation a échoué"
-    cat readme.txt > mark.csv
+    cat readme.txt >> mark.csv
     echo " $mark" >> mark.csv
     exit 1
 fi
@@ -39,7 +39,7 @@ done
 if [ "$sameResult" = true ]; then
     ((mark+=5))
     echo "$mark"
-fi  
+fi
 
 # Calcul si la factorielle 0 = 1
 facto0=$(./factorielle "0")
@@ -71,3 +71,16 @@ if [[ "$negativeNumber" = "Erreur: nombre negatif" ]]; then
     ((mark+=4))
     echo $mark
 fi
+
+header="header.h"
+if [[ ! -f "$header" ]]; then
+    ((mark-=2))
+    echo $mark
+fi
+
+make clean 
+if [ $? -ne 0 ]; then
+    ((mark-=2))
+    echo $mark
+fi
+
