@@ -3,14 +3,17 @@
 #dos2unix mark.sh Makefile
 #le faire avant de lancer le script si il est marqué comme introuvable
 
-mark=0
-
 #Récupère le nom complet de l'élève dans le readme.txt
-while IFS=" " read -r rec_column1 rec_column2
+
+while IFS=" " read -r rec_column1 rec_column2 || [ -n "$rec_column1" ]
 do
+    [ -z "$rec_column1" ] && continue
+
     echo "Note de $rec_column1 $rec_column2"
     firstName="$rec_column1"
     lastName="${rec_column2/$'\r'/}"
+    mark=0
+
 done < "readme.txt"
 
 make 
@@ -22,7 +25,7 @@ if [ $? -eq 0 ]; then
 # Mets 0 si cela n'a pas fonctionnée
 else
     echo "La compilation a échoué"
-    echo "'$firstName','$lastName','$mark'" >> mark.csv
+    echo "'$firstName','$lastName','$mark'" >> note.csv
     exit 1
 fi
 
@@ -169,4 +172,4 @@ fi
 
 #Note finale de l'élève
 echo $firstName $lastName, $mark
-echo "'$firstName','$lastName','$mark'" >> mark.csv
+echo "'$firstName','$lastName','$mark'" >> note.csv
