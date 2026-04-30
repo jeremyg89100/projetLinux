@@ -59,3 +59,15 @@ if [[ "$signature" = *"int factorielle( int number )"* ]]; then
     ((mark+=2))
     echo $mark
 fi
+
+noArgument=$(./factorielle)
+if [[ "$noArgument" = "Erreur: Mauvais nombre de parametres" ]]; then
+    ((mark+=4))
+    echo $mark
+fi
+
+negativeNumber=$(./factorielle "-1")
+if [[ "$negativeNumber" = "Erreur: nombre negatif" ]]; then
+    ((mark+=4))
+    echo $mark
+fi
