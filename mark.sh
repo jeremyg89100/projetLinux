@@ -82,9 +82,10 @@ if $point; then
 fi
 
 #Vérifie si le programme gère un nombre inexact de paramètre
-noArgument=$(./factorielle)
-moreThanOneArg=$(./factorielle 5 10)
-if [[ "$noArgument" && "$moreThanOneArg" = "Erreur: Mauvais nombre de parametres" ]]; then
+noArgument=$(./factorielle 2>&1)
+moreThanOneArg=$(./factorielle 5 10 2>&1)
+errorMessage="Erreur: Mauvais nombre de parametres"
+if [[ "$noArgument" == "$errorMessage" && "$moreThanOneArg" == "$errorMessage" ]]; then
     ((mark+=4))
 fi
 
