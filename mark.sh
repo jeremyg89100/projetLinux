@@ -68,7 +68,7 @@ fi
 # Vérifie si la signature est bonne
 point=false
 
-for file in *.c *.h
+for file in *.c
     do
     signature=$(grep "int factorielle" $file)
 
@@ -83,7 +83,8 @@ fi
 
 #Vérifie si le programme gère un nombre inexact de paramètre
 noArgument=$(./factorielle)
-if [[ "$noArgument" = "Erreur: Mauvais nombre de parametres" ]]; then
+moreThanOneArg=$(./factorielle 5 10)
+if [[ "$noArgument" && "$moreThanOneArg" = "Erreur: Mauvais nombre de parametres" ]]; then
     ((mark+=4))
 fi
 
