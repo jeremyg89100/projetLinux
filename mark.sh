@@ -1,6 +1,13 @@
 #!/bin/bash
 
+#dos2unix mark.sh Makefile
+#le faire avant de lancer le script si il est marqué comme introuvable
+
 mark=0
+firstLine=$(head -n 1 note.csv)
+if [[ "$firstLine" != "Nom,Prénom,Note" ]]; then
+    echo "Nom,Prénom,Note" >> note.csv
+fi
 
 #Récupère le nom complet de l'élève dans le readme.txt
 while IFS=" " read -r rec_column1 rec_column2
@@ -15,13 +22,11 @@ make
 if [ $? -eq 0 ]; then
     echo "La compilation a fonctionnée"
     ((mark+=2))
-    echo "$mark"
     
 # Mets 0 si cela n'a pas fonctionnée
 else
     echo "La compilation a échoué"
-    echo "'$firstName','$lastName','$mark'" >> mark.csv
-    echo " $mark" >> mark.csv
+    echo "'$firstName','$lastName','$mark'" >> note.csv
     exit 1
 fi
 
@@ -48,7 +53,6 @@ done
 # Si tous les résultats sont les mêmes alors on ajoute les 5 points
 if [ "$sameResult" = true ]; then
     ((mark+=5))
-    echo "$mark"
 fi
 
 # Calcul si la factorielle 0 = 1
@@ -57,42 +61,55 @@ facto1result=1
 
 if [ "$facto0" -eq "$facto1result" ]; then
     ((mark+=3))
-    echo "$mark"
 else 
     echo "Raté, reçu '$facto0' au lieu de '1'"
 fi
 
 # Vérifie si la signature est bonne
-signature=$(grep "int factorielle" main.c)
+point=false
 
-if [[ "$signature" = *"int factorielle( int number )"* ]]; then
+for file in *.c *.h
+    do
+    signature=$(grep "int factorielle" $file)
+
+    if [[ "$signature" = *"int factorielle( int number )"* ]]; then
+        point=true
+    fi
+done
+
+if $point; then
     ((mark+=2))
-    echo $mark
 fi
 
 #Vérifie si le programme gère un nombre inexact de paramètre
 noArgument=$(./factorielle)
 if [[ "$noArgument" = "Erreur: Mauvais nombre de parametres" ]]; then
     ((mark+=4))
-    echo $mark
 fi
 
 #Vérifie si le programme gère un nombre négatif
 negativeNumber=$(./factorielle "-1")
 if [[ "$negativeNumber" = "Erreur: nombre negatif" ]]; then
     ((mark+=4))
-    echo $mark
 fi
 
 #Vérifie les conventions du fichier
-columnConvention=$(grep -cE '.{81,}' main.c)
-echo $columnConvention
+malus=false
 
-if [ "$columnConvention" -gt 0 ]; then
+for file in *.c *.h
+do
+    columnConvention=$(grep -cE '.{81,}' $file)
+
+    if [ "$columnConvention" -gt 0 ]; then
+        malus=true
+        echo "Il y a $columnConvention lignes qui dépassent les 80 caractères"
+    else
+        echo "Convention des colonnes respectée dans $file"
+    fi
+done
+
+if $malus; then
     ((mark-=2))
-    echo "Il y a $columnConvention lignes qui dépassent les 80 caractères"
-else
-    echo "Convention des colonnes respectée"
 fi
 
 malus=false
@@ -138,22 +155,22 @@ done
 #Vérifie si il y a eu une erreur d'indentation
 if $malus; then
     ((mark-=2))
+else
+    echo Indentations respectées
 fi
 
 #Vérification de l'existance du fichier header.h
 header="header.h"
 if [[ ! -f "$header" ]]; then
     ((mark-=2))
-    echo $mark
 fi
 
 #Vérifie si la suppresion de l'éxécutable fonctionne
 make clean
 if [ $? -ne 0 ]; then
     ((mark-=2))
-    echo $mark
 fi
 
 #Note finale de l'élève
-echo $mark
-echo "'$firstName','$lastName','$mark'" >> mark.csv
+echo $firstName $lastName, $mark
+echo "'$firstName','$lastName','$mark'" >> note.csv
