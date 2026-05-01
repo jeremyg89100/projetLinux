@@ -12,7 +12,7 @@ int factorielle( int number )
   }
 
   return result;
- }
+}
 
 int main(int argc, char *argv[]) 
 {

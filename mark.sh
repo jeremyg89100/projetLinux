@@ -38,31 +38,29 @@ else
 fi
 
 # Initie la variable pour voir si les résultats de la factorielle en c et celle en shell ont les même résultats
-sameResult=false
-# Vérifie la facto entre 1 et 10
+sameResult=true 
+factor=1
+
 for ((i=1 ; i<=10 ; i++))
 do
     result=$(./factorielle $i)
-    factor=1
+    # Bonne factorielle pour comparer avec celle de l'élève
+    ((factor*=i))
 
-    # Facto faites maison
-        for ((j=1 ; j<=i ; j++))
-        do
-            ((factor*=j))
-        done
-    # Compare les résultats des 2 factos, si différents, change en sameResult en faux
-    if [ "$factor" -eq "$result" ]; then
-        sameResult=true
+    # Vérifie si les résultats sont similaires, si ils sont différents la boucle s'arrête
+    if [ "$factor" -ne "$result" ]; then
+        echo "Erreur détectée pour $i! : attendu $factor, reçu $result"
+        sameResult=false
         break
     fi
-done  
+done
 
-# Si tous les résultats sont les mêmes alors on ajoute les 5 points 
+# Si tous les résultats sont similaires, ajout des points
 if $sameResult; then
     ((mark+=5))
     echo "+5 sur la facto entre 1 et 10"
 else
-    echo "pas de +5 sur la facto"
+    echo "pas de +5 sur la facto (au moins une erreur détectée)"
 fi
 
 # Calcul si la factorielle 0 = 1
@@ -117,7 +115,7 @@ else
 fi
 
 #Vérifie les conventions du fichier
-malus=true
+malus=false
 
 for file in *.c *.h
 do
@@ -125,15 +123,15 @@ do
 
     if [ "$columnConvention" -gt 0 ]; then
         echo "Il y a $columnConvention lignes qui dépassent les 80 caractères"
+        malus=true
     else
         echo "Convention des colonnes respectée dans $file"
-        malus=false
     fi
 done
 
 if $malus; then
     ((mark-=2))
-    echo "-2 sur la convention des colonnes"
+    echo "-2 sur la convention des colonnes dans $file"
 fi
 
 malus=false
@@ -193,11 +191,12 @@ fi
 
 #Vérifie si la suppression de l'éxécutable fonctionne
 make clean
-if [ $? -ne 0 ]; then
+fileFacto="factorielle"
+if [ -f "$fileFacto" ]; then
     ((mark-=2))
     echo "-2 sur le clean qui ne fonctionne pas"
 fi
 
 #Note finale de l'élève
 echo $firstName $lastName, $mark
-echo "'$firstName','$lastName','$mark'" >> note.csv
+echo "'$lastName','$firstName',$mark" >> note.csv
