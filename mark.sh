@@ -32,9 +32,9 @@ if [ $? -eq 0 ]; then
 # Mets 0 si cela n'a pas fonctionnée
 else
     echo "La compilation a échoué"
-    echo "'$firstName','$lastName','$mark'" >> note.csv
+    echo "'$lastName','$firstName',$mark" >> note.csv
+    echo $firstName $lastName, $mark
     exit 1
-    echo "0 sur la compil"
 fi
 
 # Initie la variable pour voir si les résultats de la factorielle en c et celle en shell ont les même résultats
@@ -48,7 +48,7 @@ do
     ((factor*=i))
 
     # Vérifie si les résultats sont similaires, si ils sont différents la boucle s'arrête
-    if [ "$factor" -ne "$result" ]; then
+    if [ "$factor" != "$result" ]; then
         echo "Erreur détectée dans la factorielle"
         sameResult=false
         break
@@ -67,11 +67,11 @@ fi
 facto0=$(./factorielle "0")
 facto1result=1
 
-if [ "$facto0" -eq "$facto1result" ]; then
+if [ "$facto0" == "$facto1result" ]; then
     ((mark+=3))
     echo "+3 sur la facto à 0"
 else 
-    echo "Raté, reçu '$facto0' au lieu de '1'"
+    echo "Erreur factorielle 0, reçu $facto0 au lieu de 1"
     echo "pas de +3 sur la facto à 0"
 fi
 
@@ -95,7 +95,7 @@ else
 fi
 
 #Vérifie si le programme gère un nombre inexact de paramètre
-noArgument=$(./factorielle 2>&1)
+noArgument=$(./factorielle 2>&1| tr -d '\r' | xargs)
 moreThanOneArg=$(./factorielle 5 10 2>&1)
 errorMessage="Erreur: Mauvais nombre de parametres"
 if [[ "$noArgument" == "$errorMessage" && "$moreThanOneArg" == "$errorMessage" ]]; then
@@ -106,7 +106,7 @@ else
 fi
 
 #Vérifie si le programme gère un nombre négatif
-negativeNumber=$(./factorielle "-1")
+negativeNumber=$(./factorielle "-1" 2>&1)
 if [[ "$negativeNumber" = "Erreur: nombre negatif" ]]; then
     ((mark+=4))
     echo "+4 sur la gestion des nombres négatifs"
@@ -115,24 +115,24 @@ else
 fi
 
 #Vérifie les conventions du fichier
-malus=true
+malus=false
 
 for file in *.c *.h
 do
-    columnConvention=$(grep -cE '.{81,}' $file)
+    columnConvention=$(grep -cE '.{82,}' $file)
 
     if [ "$columnConvention" -gt 0 ]; then
         echo "Il y a $columnConvention lignes qui dépassent les 80 caractères"
+        echo "dans le fichier $file"
         malus=true
     else
         echo "Convention des colonnes respectée dans $file"
-        malus=false
     fi
 done
 
 if $malus; then
     ((mark-=2))
-    echo "-2 sur la convention des colonnes dans $file"
+    echo "-2 sur la convention des colonnes"
 fi
 
 malus=false
